@@ -1,4 +1,4 @@
-version: "3.9"
+#version: "3.9" se comenta ya que el warning the attribute version is obsolete es normal en Docker Compose v2. Ya no hace falta poner version:
 
 services:
   mosquitto:
@@ -43,6 +43,17 @@ services:
   subscriber:
     build: ./subscriber
     container_name: subscriber
+    depends_on:
+      - mosquitto
+      - influxdb
+
+  node-red:
+    image: nodered/node-red:latest
+    container_name: node-red
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./node-red-data:/data
     depends_on:
       - mosquitto
       - influxdb

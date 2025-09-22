@@ -16,7 +16,12 @@ except Exception as e:
     print(f"Connection failed: {e}")
     exit(1)
 
+# Ejemplo para tomar datos de sensores
 while True:
+    
+    #temperatura = sensor_temperatura.read()  # Simulación de lectura de sensor
+    #humedad = sensor_humedad.read()        # Simulación de lectura de sensor
+    #presion = sensor_presion.read()        # Simulación de lectura de sensor
     payload = {
         "temperature": round(random.uniform(20, 30), 2),
         "humidity": round(random.uniform(40, 70), 2),
