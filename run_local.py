@@ -18,7 +18,7 @@ class WeatherMonitoringSystem:
         self.services = {
             "grafana": {"url": "http://localhost:3000", "user": "admin", "pass": "admin123"},
             "influxdb": {"url": "http://localhost:8086", "user": "admin", "pass": "admin123"},
-            "mqtt": {"url": "localhost:1883", "user": None, "pass": None}
+            "mqtt": {"url": "http://localhost:1883", "user": None, "pass": None}
         }
         # aquí guardaremos el comando correcto de docker compose
         self.compose_cmd = None
