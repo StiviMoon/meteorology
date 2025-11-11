@@ -46,3 +46,5 @@ influxdb-data/
 
 # Grafana data
 grafana-data/
+
+.env

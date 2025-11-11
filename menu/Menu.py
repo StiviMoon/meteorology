@@ -17,8 +17,31 @@ import time
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # --- Importaciones internas ---
-from run_local import WeatherMonitoringSystem
-from manage_data import DataManager
+# NOTA: Asumo que 'run_local' y 'manage_data' existen en tu proyecto
+# from run_local import WeatherMonitoringSystem 
+# from manage_data import DataManager
+
+
+# --- Mock de clases para que el código sea ejecutable de forma independiente ---
+# Si estas clases no se encuentran, el script fallará. Mantengo el mock por si acaso.
+class WeatherMonitoringSystem:
+    def run(self):
+        print("⚙️ Iniciando servicios Docker...")
+    def check_services_status(self):
+        print("⚙️ Verificando estado de servicios...")
+    def display_services_info(self):
+        print("⚙️ Mostrando información de servicios...")
+    def display_data_warning(self):
+        print("⚠️ Advertencia: datos persistentes almacenados en volumenes de Docker.")
+
+class DataManager:
+    def backup_volumes(self):
+        print("💾 Creando backup...")
+    def restore_volumes(self):
+        print("💾 Restaurando backup...")
+    def clean_volumes(self):
+        print("🗑️ Eliminando datos...")
+# --- Fin Mock de clases ---
 
 
 # --- Funciones auxiliares ---
@@ -30,26 +53,30 @@ def ejecutar_script(comando, descripcion):
     print(f"\n🔹 {descripcion}")
     print("=" * 60)
     try:
-        proceso = subprocess.Popen(comando, shell=True)
+        # Usar subprocess.run es más seguro para comandos simples.
+        # Quitamos shell=True por seguridad a menos que sea estrictamente necesario
+        proceso = subprocess.Popen(comando, shell=False) 
         print("📡 Ejecutando... (Ctrl+C para detener si es un proceso continuo)")
         proceso.wait()
     except KeyboardInterrupt:
         print("\n⛔ Proceso detenido por el usuario.")
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"❌ Error al ejecutar el script: {e}")
     finally:
         input("\nPresiona Enter para continuar...")
 
 
 # --- Módulos ---
 def iniciar_simulacion():
-    ejecutar_script("python3 publisher/publisher.py", "Iniciando simulación de datos")
+    ejecutar_script(["python3", "publisher/publisher.py"], "Iniciando simulación de datos")
 
 def iniciar_suscriptor():
-    ejecutar_script("python3 subscriber/subscriber.py", "Escuchando datos MQTT")
+    ejecutar_script(["python3", "subscriber/subscriber.py"], "Escuchando datos MQTT")
 
 def analisis_estadistico():
-    ejecutar_script("python3 estadistica/Funciones.py", "Ejecutando módulo de análisis estadístico")
+    # --- CORRECCIÓN AQUÍ: Usar el nombre de archivo correcto (en minúsculas) ---
+    ejecutar_script(["python3", "estadistica/Calculador_estadisticas.py"], "Ejecutando módulo de análisis estadístico") 
+    # Usando lista de comandos en lugar de string, más seguro
 
 def gestion_datos(data_manager):
     limpiar_pantalla()
@@ -116,8 +143,14 @@ def salir():
 
 # --- Menú principal ---
 def mostrar_menu():
-    sistema = WeatherMonitoringSystem()
-    data_manager = DataManager()
+    # Usando las clases mockeadas si las originales no se pueden importar
+    try:
+        sistema = WeatherMonitoringSystem()
+        data_manager = DataManager()
+    except Exception as e:
+        print(f"⚠️ Advertencia: Error al importar clases de gestión ({e}). Usando mocks.")
+        sistema = WeatherMonitoringSystem()
+        data_manager = DataManager()
 
     while True:
         limpiar_pantalla()

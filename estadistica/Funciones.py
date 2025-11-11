@@ -2,225 +2,145 @@
 # Módulo de Estadística Descriptiva
 # -------------------------------
 # Proyecto: Estación Meteorológica
-# Sin librerías externas
+# Sin librerías externas (solo Python nativo)
 # -------------------------------
 
 # -------------------------------
 # FUNCION: Calcular Media
 # -------------------------------
 def calcular_media(datos):
-    # Validación: lista vacía
-    if not datos:
-        print("⚠️ Error: la lista de datos está vacía.")
+    """Devuelve la media aritmética de una lista de números."""
+    # Validación de datos numéricos
+    datos_numericos = [x for x in datos if isinstance(x, (int, float))]
+    if not datos_numericos:
         return None
 
-    # Validación: tipos numéricos
-    for valor in datos:
-        if not isinstance(valor, (int, float)):
-            print("⚠️ Error: todos los elementos deben ser numéricos.")
-            return None
+    total = 0.0
+    for x in datos_numericos:
+        total += x
 
-    # Calcular suma y cantidad
-    suma = 0
-    cantidad = 0
-    for valor in datos:
-        suma += valor
-        cantidad += 1
-
-    # Calcular media
-    media = suma / cantidad
-    return media
+    return total / len(datos_numericos)
 
 
 # -------------------------------
 # FUNCION: Ordenamiento Burbuja
 # -------------------------------
 def ordenar_datos(datos):
-    # Clonar lista original
-    resultado = []
-    for valor in datos:
-        resultado.append(valor)
+    """Devuelve una nueva lista ordenada (burbuja)."""
+    datos_copia = [x for x in datos if isinstance(x, (int, float))]
+    n = len(datos_copia)
 
-    # Contar elementos
-    n = 0
-    for _ in resultado:
-        n += 1
+    for i in range(n - 1):
+        for j in range(n - i - 1):
+            if datos_copia[j] > datos_copia[j + 1]:
+                datos_copia[j], datos_copia[j + 1] = datos_copia[j + 1], datos_copia[j]
 
-    # Algoritmo de burbuja
-    for i in range(n):
-        for j in range(0, n - 1 - i):
-            if resultado[j] > resultado[j + 1]:
-                temp = resultado[j]
-                resultado[j] = resultado[j + 1]
-                resultado[j + 1] = temp
-
-    return resultado
+    return datos_copia
 
 
 # -------------------------------
 # FUNCION: Calcular Mediana
 # -------------------------------
 def calcular_mediana(datos):
-    if not datos:
-        print("⚠️ Error: la lista de datos está vacía.")
+    """Devuelve la mediana de los datos."""
+    datos_ordenados = ordenar_datos(datos)
+    n = len(datos_ordenados)
+
+    if n == 0:
         return None
 
-    for valor in datos:
-        if not isinstance(valor, (int, float)):
-            print("⚠️ Error: todos los elementos deben ser numéricos.")
-            return None
-
-    # Ordenar datos
-    datos_ordenados = ordenar_datos(datos)
-
-    # Contar elementos
-    cantidad = 0
-    for _ in datos_ordenados:
-        cantidad += 1
-
-    # Calcular índice central
-    indice_central = cantidad // 2
-
-    # Calcular mediana según par o impar
-    if cantidad % 2 == 1:
-        mediana = datos_ordenados[indice_central]
+    mitad = n // 2
+    if n % 2 == 1:
+        return datos_ordenados[mitad]
     else:
-        valor1 = datos_ordenados[indice_central - 1]
-        valor2 = datos_ordenados[indice_central]
-        mediana = (valor1 + valor2) / 2
-
-    return mediana
+        return (datos_ordenados[mitad - 1] + datos_ordenados[mitad]) / 2
 
 
 # -------------------------------
 # FUNCION: Calcular Moda
 # -------------------------------
 def calcular_moda(datos):
-    if not datos:
-        print("⚠️ Error: la lista de datos está vacía.")
+    """Devuelve la moda o modas de una lista de números."""
+    datos_numericos = [x for x in datos if isinstance(x, (int, float))]
+    if not datos_numericos:
         return None
 
-    for valor in datos:
-        if not isinstance(valor, (int, float)):
-            print("⚠️ Error: todos los elementos deben ser numéricos.")
-            return None
+    # Contar frecuencias
+    frecuencias = {}
+    for x in datos_numericos:
+        frecuencias[x] = frecuencias.get(x, 0) + 1
 
-    # PASO 1 — Contar frecuencias
-    valores = []
-    frecuencias = []
+    # Frecuencia máxima
+    max_frec = 0
+    for f in frecuencias.values():
+        if f > max_frec:
+            max_frec = f
 
-    for valor in datos:
-        if valor in valores:
-            indice = 0
-            for v in valores:
-                if v == valor:
-                    frecuencias[indice] += 1
-                    break
-                indice += 1
-        else:
-            valores.append(valor)
-            frecuencias.append(1)
+    # Sin moda (todos los valores aparecen una sola vez)
+    if max_frec <= 1:
+        return None
 
-    # PASO 2 — Frecuencia máxima
-    frecuencia_max = frecuencias[0]
-    for f in frecuencias:
-        if f > frecuencia_max:
-            frecuencia_max = f
+    modas = []
+    for valor, frec in frecuencias.items():
+        if frec == max_frec:
+            modas.append(valor)
 
-    # PASO 3 — Verificar si hay moda
-    if frecuencia_max == 1:
-        return {
-            "moda": [],
-            "frecuencia": 1,
-            "tipo": "sin_moda",
-            "mensaje": "No hay moda (ningún valor se repite)"
-        }
-
-    # PASO 4 — Identificar valores con frecuencia máxima
-    modales = []
-    for i in range(len(valores)):
-        if frecuencias[i] == frecuencia_max:
-            modales.append(valores[i])
-
-    # Ordenar modales (burbuja)
-    modales_ordenados = ordenar_datos(modales)
-
-    # PASO 5 — Clasificar tipo de moda
-    cantidad_modas = 0
-    for _ in modales_ordenados:
-        cantidad_modas += 1
-
-    if cantidad_modas == 1:
-        tipo = "unimodal"
-    elif cantidad_modas == 2:
-        tipo = "bimodal"
-    else:
-        tipo = "multimodal"
-
-    return {
-        "moda": modales_ordenados,
-        "frecuencia": frecuencia_max,
-        "tipo": tipo
-    }
+    modas_ordenadas = ordenar_datos(modas)
+    return modas_ordenadas[0] if len(modas_ordenadas) == 1 else modas_ordenadas
 
 
 # -------------------------------
-# FUNCION: Calcular Varianza y Desviación Estándar
+# FUNCION: Calcular Varianza (Poblacional)
 # -------------------------------
-def calcular_varianza(datos, poblacional=False):
-    if not datos:
-        print("⚠️ Error: la lista de datos está vacía.")
+def calcular_varianza(datos):
+    """Devuelve la varianza poblacional de los datos."""
+    datos_numericos = [x for x in datos if isinstance(x, (int, float))]
+    n = len(datos_numericos)
+    if n == 0:
         return None
 
-    for valor in datos:
-        if not isinstance(valor, (int, float)):
-            print("⚠️ Error: todos los elementos deben ser numéricos.")
-            return None
+    media = calcular_media(datos_numericos)
+    suma = 0.0
+    for x in datos_numericos:
+        suma += (x - media) ** 2
 
-    # Calcular media
-    media = calcular_media(datos)
-
-    # Calcular sumatoria de desviaciones al cuadrado
-    suma_cuadrados = 0
-    cantidad = 0
-    for valor in datos:
-        desviacion = valor - media
-        suma_cuadrados += desviacion * desviacion
-        cantidad += 1
-
-    if cantidad <= 1:
-        print("⚠️ Error: no se puede calcular varianza con menos de 2 datos.")
-        return None
-
-    # Varianza poblacional o muestral
-    divisor = cantidad if poblacional else (cantidad - 1)
-    varianza = suma_cuadrados / divisor
-    return varianza
+    return suma / n
 
 
-def calcular_desviacion_estandar(datos, poblacional=False):
-    varianza = calcular_varianza(datos, poblacional)
+# -------------------------------
+# FUNCION: Calcular Desviación Estándar (Poblacional)
+# -------------------------------
+def calcular_std_dev(datos):
+    """Devuelve la desviación estándar poblacional."""
+    varianza = calcular_varianza(datos)
     if varianza is None:
         return None
-
-    # Raíz cuadrada manual sin librerías
-    # Método de Newton-Raphson
-    estimacion = varianza / 2
-    for _ in range(10):  # iteraciones suficientes
-        estimacion = (estimacion + varianza / estimacion) / 2
-
-    return estimacion
+    return varianza ** 0.5
 
 
 # -------------------------------
-# PRUEBAS DE EJEMPLO
+# FUNCION: Calcular Rango Intercuartílico (IQR)
 # -------------------------------
-if __name__ == "__main__":
-    datos = [2, 4, 4, 4, 5, 5, 7, 9]
+def calcular_iqr(datos):
+    """Devuelve el rango intercuartílico (Q3 - Q1)."""
+    datos_ordenados = ordenar_datos(datos)
+    n = len(datos_ordenados)
+    if n < 4:
+        return None
 
-    print("Datos:", datos)
-    print("Media:", calcular_media(datos))
-    print("Mediana:", calcular_mediana(datos))
-    print("Moda:", calcular_moda(datos))
-    print("Varianza:", calcular_varianza(datos))
-    print("Desviación estándar:", calcular_desviacion_estandar(datos))
+    mitad = n // 2
+    if n % 2 == 0:
+        inferior = datos_ordenados[:mitad]
+        superior = datos_ordenados[mitad:]
+    else:
+        inferior = datos_ordenados[:mitad]
+        superior = datos_ordenados[mitad + 1:]
+
+    q1 = calcular_mediana(inferior)
+    q3 = calcular_mediana(superior)
+
+    if q1 is None or q3 is None:
+        return None
+
+    return q3 - q1
+# -------------------------------

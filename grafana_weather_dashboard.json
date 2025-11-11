@@ -1,0 +1,202 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": null,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "INFLUXDB_WEATHER_DS"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 2,
+            "options": {
+                "color": {
+                    "mode": "palette-classic"
+                },
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "INFLUXDB_WEATHER_DS"
+                    },
+                    "language": "flux",
+                    "query": "from(bucket: \"weather-bucket\")\n |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n |> filter(fn: (r) => r[\"_measurement\"] == \"weather\")\n |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n |> filter(fn: (r) => r[\"station\"] == \"${station}\")\n |> mean()\n |> yield(name: \"temperature\")",
+                    "refId": "A"
+                }
+            ],
+            "title": "Temperatura (°C)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "INFLUXDB_WEATHER_DS"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 8
+            },
+            "id": 3,
+            "options": {
+                "color": {
+                    "mode": "palette-classic"
+                },
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "INFLUXDB_WEATHER_DS"
+                    },
+                    "language": "flux",
+                    "query": "from(bucket: \"weather-bucket\")\n |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n |> filter(fn: (r) => r[\"_measurement\"] == \"weather\")\n |> filter(fn: (r) => r[\"_field\"] == \"humidity\")\n |> filter(fn: (r) => r[\"station\"] == \"${station}\")\n |> mean()\n |> yield(name: \"humidity\")",
+                    "refId": "A"
+                }
+            ],
+            "title": "Humedad (%)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "INFLUXDB_WEATHER_DS"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 8
+            },
+            "id": 4,
+            "options": {
+                "color": {
+                    "mode": "palette-classic"
+                },
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "INFLUXDB_WEATHER_DS"
+                    },
+                    "language": "flux",
+                    "query": "from(bucket: \"weather-bucket\")\n |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n |> filter(fn: (r) => r[\"_measurement\"] == \"weather\")\n |> filter(fn: (r) => r[\"_field\"] == \"pressure\")\n |> filter(fn: (r) => r[\"station\"] == \"${station}\")\n |> mean()\n |> yield(name: \"pressure\")",
+                    "refId": "A"
+                }
+            ],
+            "type": "timeseries"
+        }
+    ],
+    "schemaVersion": 38,
+    "style": "dark",
+    "tags": [
+        "weather",
+        "mqtt",
+        "influxdb"
+    ],
+    "templating": {
+        "list": [
+            {
+                "current": {
+                    "selected": true,
+                    "text": "station1",
+                    "value": "station1"
+                },
+                "datasource": {
+                    "type": "influxdb",
+                    "uid": "INFLUXDB_WEATHER_DS"
+                },
+                "definition": "import \"influxdata/influxdb/schema\"\n\nschema.tagValues(bucket: \"weather-bucket\", tag: \"station\")",
+                "description": null,
+                "hide": 0,
+                "includeAll": false,
+                "label": "Estación",
+                "multi": false,
+                "name": "station",
+                "options": [],
+                "query": {
+                    "query": "import \"influxdata/influxdb/schema\"\n\nschema.tagValues(bucket: \"weather-bucket\", tag: \"station\")",
+                    "query_language": "flux"
+                },
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "type": "query"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-6h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Sistema de Monitoreo Meteorológico",
+    "uid": "meteorology-system-v1",
+    "version": 1
+}

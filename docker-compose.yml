@@ -1,4 +1,4 @@
-#version: "3.9" se comenta ya que el warning the attribute version is obsolete es normal en Docker Compose v2. Ya no hace falta poner version:
+# En Docker Compose v2 ya no se necesita el campo "version"
 
 services:
   mosquitto:
@@ -8,6 +8,7 @@ services:
       - "1883:1883"
     volumes:
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: always
 
   influxdb:
     image: influxdb:2.7
@@ -20,8 +21,10 @@ services:
       - DOCKER_INFLUXDB_INIT_PASSWORD=admin123
       - DOCKER_INFLUXDB_INIT_ORG=weather-org
       - DOCKER_INFLUXDB_INIT_BUCKET=weather-bucket
+      - DOCKER_INFLUXDB_INIT_RETENTION=30d
     volumes:
       - influxdb-data:/var/lib/influxdb2
+    restart: always
 
   grafana:
     image: grafana/grafana:latest
@@ -31,21 +34,39 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - grafana-data:/var/lib/grafana
+    depends_on:
+      - influxdb
+    restart: always
 
   publisher:
     build: ./publisher
     container_name: publisher
+    environment:
+      - MQTT_BROKER=mosquitto
+      - MQTT_PORT=1883
+      - MQTT_TOPIC=weather/station1
     depends_on:
       - mosquitto
+    restart: on-failure
 
   subscriber:
     build: ./subscriber
     container_name: subscriber
+    environment:
+      - MQTT_BROKER=mosquitto
+      - MQTT_PORT=1883
+      - MQTT_TOPIC=weather/station1
+      - INFLUX_URL=http://influxdb:8086
+      - INFLUX_TOKEN=${INFLUX_TOKEN}
+      - INFLUX_ORG=weather-org
+      - INFLUX_BUCKET=weather-bucket
     depends_on:
       - mosquitto
       - influxdb
+    restart: on-failure
 
   node-red:
     image: nodered/node-red:latest
@@ -57,9 +78,9 @@ services:
     depends_on:
       - mosquitto
       - influxdb
+    restart: always
 
 volumes:
   influxdb-data:
-    driver: local
   grafana-data:
-    driver: local
+  node-red-data:
